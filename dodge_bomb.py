@@ -1,5 +1,6 @@
 import random
 import sys
+import math
 
 import pygame as pg
 
@@ -10,6 +11,15 @@ def sign(value: int) -> int:
         return 0
     return 1
 
+def length(pos1: tuple, pos2: tuple) -> int:
+    return int(math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2))
+
+def change_length(lst: list, after_length: int):
+    l = length((0, 0), tuple(lst))
+    rst = [0, 0]
+    rst[0] = lst[0] / l * after_length
+    rst[1] = lst[1] / l * after_length
+    return rst
 
 def check_bound(screen: pg.Surface, obj_rect:pg.Rect):
     """
@@ -60,7 +70,6 @@ def main():
         random.randint(0 + bomb_rect.width / 2, screen.get_width() - bomb_rect.width / 2),
         random.randint(0 + bomb_rect.height / 2, screen.get_height() - bomb_rect.height / 2)
     )
-    bomb_velocity = [1, 1]
 
     bomb_accs = [a for a in range(1, 11)]
     bomb_imgs = []
@@ -73,6 +82,7 @@ def main():
 
     tmr = 0
     gameover_tmr = 0
+    bomb_velocity_normalized = change_length([1, 1], 1)
 
     while True:
         for event in pg.event.get():
@@ -103,15 +113,23 @@ def main():
         if (not bound[0]) or (not bound[1]):
             kk_rect.center = pos
 
+        bomb_velocity = [0.0, 0.0]
+        if length(kk_rect.center, bomb_rect.center) >= 500:
+            sabun = [
+                kk_rect.center[0] - bomb_rect.center[0],
+                kk_rect.center[1] - bomb_rect.center[1]
+            ]
+            bomb_velocity_normalized = change_length(sabun, 1)
+
+        bomb_velocity[0] = bomb_velocity_normalized[0] * bomb_accs[min(tmr // 1000, 9)]
+        bomb_velocity[1] = bomb_velocity_normalized[1] * bomb_accs[min(tmr // 1000, 9)]
+
         bomb_rect.move_ip(bomb_velocity)
         bound = check_bound(screen, bomb_rect)
-        bomb_velocity[0] = sign(bomb_velocity[0]) * bomb_accs[min(tmr // 1000, 9)]
-        bomb_velocity[1] = sign(bomb_velocity[1]) * bomb_accs[min(tmr // 1000, 9)]
-
         if (not bound[0]):
-            bomb_velocity[0] *= -1
+            bomb_velocity_normalized[0] *= -1
         if not bound[1]:
-            bomb_velocity[1] *= -1
+            bomb_velocity_normalized[1] *= -1
         screen.blit(bomb_imgs[min(tmr // 1000, 9)], bomb_rect)
 
         if kk_rect.colliderect(bomb_rect):
