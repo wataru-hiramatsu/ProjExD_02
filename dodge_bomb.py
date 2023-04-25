@@ -55,6 +55,7 @@ def main():
     is_gameover = False
     tmr = 0
     gameover_tmr = 0
+    score = 0
 
     # 背景
     bg_img = pg.image.load("ex02/fig/pg_bg.jpg")
@@ -118,6 +119,9 @@ def main():
             screen.blit(kk_gameover_img, kk_rect)
             if tmr - gameover_tmr >= 3000:
                 return
+            font  = pg.font.Font(None, 80)
+            screen.blit(font.render("Score: " + str(score), True, (0, 0, 0)), [0, 0])
+
             pg.display.update()
             clock.tick(1000)
             continue
@@ -168,6 +172,12 @@ def main():
             gameover_tmr = tmr
         else:
             screen.blit(kk_img, kk_rect)
+
+        if tmr % 50 == 0:
+            score += 100
+
+        font  = pg.font.Font(None, 80)
+        screen.blit(font.render("Score: " + str(score), True, (0, 0, 0)), [0, 0])
 
         # 更新処理
         pg.display.update()
