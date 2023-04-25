@@ -5,16 +5,32 @@ import math
 import pygame as pg
 
 def sign(value: int) -> int:
+    """
+    値の符号を返す関数
+    引数1: 符号を判定したいint変数
+    返り値: 符号（負=-1, ゼロ=0, 正=1）
+    """
     if (value < 0):
         return -1
     if (value is 0):
         return 0
     return 1
 
-def length(pos1: tuple, pos2: tuple) -> int:
-    return int(math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2))
+def length(pos1: tuple, pos2: tuple) -> float:
+    """
+    ベクトルの長さを返す関数
+    引数1: ベクトル1 (タプル)
+    引数2: ベクトル2（タプル）
+    返り値: 長さ
+    """
+    return math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
 
 def change_length(lst: list, after_length: int):
+    """
+    ベクトルの長さを変更する関数
+    引数1: 長さを変更したりベクトル
+    引数2: 変更後の長さ
+    """
     l = length((0, 0), tuple(lst))
     rst = [0, 0]
     rst[0] = lst[0] / l * after_length
@@ -36,7 +52,14 @@ def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((1600, 900))
     clock = pg.time.Clock()
+    is_gameover = False
+    tmr = 0
+    gameover_tmr = 0
+
+    # 背景
     bg_img = pg.image.load("ex02/fig/pg_bg.jpg")
+
+    # こうかとん
     kk_img = pg.image.load("ex02/fig/3.png")
     kk_img = pg.transform.rotozoom(kk_img, 0, 2.0)
     kk_img_flip = pg.transform.flip(kk_img, True, False)
@@ -61,6 +84,7 @@ def main():
         (0, 1): pg.transform.rotozoom(kk_img_flip, -90, 1),
         (1, 1): pg.transform.rotozoom(kk_img_flip, -45, 1),
     }
+
     # 爆弾
     bomb_img = pg.Surface((20, 20))
     pg.draw.circle(bomb_img, (255, 0, 0), (10, 10), 10)
@@ -70,7 +94,6 @@ def main():
         random.randint(0 + bomb_rect.width / 2, screen.get_width() - bomb_rect.width / 2),
         random.randint(0 + bomb_rect.height / 2, screen.get_height() - bomb_rect.height / 2)
     )
-
     bomb_accs = [a for a in range(1, 11)]
     bomb_imgs = []
     for r in range(1, 11):
@@ -78,18 +101,19 @@ def main():
         pg.draw.circle(img, (255, 0, 0), (10 * r, 10 * r), 10 * r)
         img.set_colorkey((0, 0, 0))
         bomb_imgs.append(img)
-    is_gameover = False
-
-    tmr = 0
-    gameover_tmr = 0
     bomb_velocity_normalized = change_length([1, 1], 1)
 
     while True:
+        tmr += 1
+        # イベントの受け取り
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return 0
-        tmr += 1
+
+        # 背景の描画
         screen.blit(bg_img, [0, 0])
+
+        # ゲームオーバー時処理
         if is_gameover:
             screen.blit(kk_gameover_img, kk_rect)
             if tmr - gameover_tmr >= 3000:
@@ -98,21 +122,25 @@ def main():
             clock.tick(1000)
             continue
 
-        key_lst = pg.key.get_pressed()
+        # こうかとんの移動方向決定
         kk_velo = [0, 0]
         for key in kk_move_assign.keys():
             pos = kk_rect.center
-            if key_lst[key]:
+            if pg.key.get_pressed()[key]:
                 kk_velo[0] += kk_move_assign[key][0]
                 kk_velo[1] += kk_move_assign[key][1]
 
+        # こうかとんの表示画像の決定
         if tuple(kk_velo) in kk_imgs.keys():
             kk_img = kk_imgs[tuple(kk_velo)]
+
+        # こうかとん移動&描画
         kk_rect.move_ip(kk_velo)
         bound = check_bound(screen, kk_rect)
         if (not bound[0]) or (not bound[1]):
             kk_rect.center = pos
 
+        # 爆弾移動ベクトル決定
         bomb_velocity = [0.0, 0.0]
         if length(kk_rect.center, bomb_rect.center) >= 500:
             sabun = [
@@ -124,6 +152,7 @@ def main():
         bomb_velocity[0] = bomb_velocity_normalized[0] * bomb_accs[min(tmr // 1000, 9)]
         bomb_velocity[1] = bomb_velocity_normalized[1] * bomb_accs[min(tmr // 1000, 9)]
 
+        # 爆弾移動＆描画
         bomb_rect.move_ip(bomb_velocity)
         bound = check_bound(screen, bomb_rect)
         if (not bound[0]):
@@ -132,6 +161,7 @@ def main():
             bomb_velocity_normalized[1] *= -1
         screen.blit(bomb_imgs[min(tmr // 1000, 9)], bomb_rect)
 
+        # ゲームオーバー判定
         if kk_rect.colliderect(bomb_rect):
             screen.blit(kk_gameover_img, kk_rect)
             is_gameover = True
@@ -139,6 +169,7 @@ def main():
         else:
             screen.blit(kk_img, kk_rect)
 
+        # 更新処理
         pg.display.update()
         clock.tick(1000)
 
