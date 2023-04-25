@@ -3,8 +3,17 @@ import sys
 
 import pygame as pg
 
-def isInScreen(screen: pg.Surface, targetRect:pg.Rect):
-    return (0 <= targetRect.left and targetRect.right <= screen.get_width()) and (0 <= targetRect.top and targetRect.bottom <= screen.get_height())
+
+def check_bound(screen: pg.Surface, obj_rect:pg.Rect):
+    """
+    オブジェクトが画面内or画面外を判定し、真偽値タプルを返す変数
+    引数1: 画面Surface
+    引数2: 判定したいSurfaceのRect
+    返り値: 横方向、縦方向のはみ出し結果（画面内=True）
+    """
+    width = 0 <= obj_rect.left and obj_rect.right <= screen.get_width()
+    height = 0 <= obj_rect.top and obj_rect.bottom <= screen.get_height()
+    return (width, height)
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -61,7 +70,8 @@ def main():
         if tuple(kk_velo) in kk_imgs.keys():
             kk_img = kk_imgs[tuple(kk_velo)]
         kk_rect.move_ip(kk_velo)
-        if not isInScreen(screen, kk_rect):
+        bound = check_bound(screen, kk_rect)
+        if (not bound[0]) or (not bound[1]):
             kk_rect.center = pos
 
         tmr += 1
@@ -69,7 +79,8 @@ def main():
         screen.blit(kk_img, kk_rect)
 
         bomb_rect.move_ip(bomb_velocity)
-        if not isInScreen(screen, bomb_rect):
+        bound = check_bound(screen, bomb_rect)
+        if (not bound[0]) or (not bound[1]):
             bomb_velocity[0] *= -1
             bomb_velocity[1] *= -1
         screen.blit(bomb_img, bomb_rect)
