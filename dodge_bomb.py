@@ -13,6 +13,7 @@ def main():
     bg_img = pg.image.load("ex02/fig/pg_bg.jpg")
     kk_img = pg.image.load("ex02/fig/3.png")
     kk_img = pg.transform.rotozoom(kk_img, 0, 2.0)
+    kk_img_flip = pg.transform.flip(kk_img, True, False)
     kk_rect = kk_img.get_rect()
     kk_rect.center = (900, 400)
     # キー毎の移動量
@@ -21,6 +22,16 @@ def main():
         pg.K_DOWN: (0, 1),
         pg.K_LEFT: (-1, 0),
         pg.K_RIGHT: (1, 0),
+    }
+    kk_imgs = {
+        (-1, 0): kk_img,
+        (-1, -1): pg.transform.rotozoom(kk_img, -45, 1),
+        (-1, 1): pg.transform.rotozoom(kk_img, 45, 1),
+        (0, -1): pg.transform.rotozoom(kk_img_flip, 90, 1),
+        (1, 0): kk_img_flip,
+        (1, -1): pg.transform.rotozoom(kk_img_flip, 45, 1),
+        (0, 1): pg.transform.rotozoom(kk_img_flip, -90, 1),
+        (1, 1): pg.transform.rotozoom(kk_img_flip, -45, 1),
     }
     # 爆弾
     bomb_img = pg.Surface((20, 20))
@@ -40,12 +51,18 @@ def main():
             if event.type == pg.QUIT:
                 return 0
         key_lst = pg.key.get_pressed()
+        kk_velo = [0, 0]
         for key in kk_move_assign.keys():
             pos = kk_rect.center
             if key_lst[key]:
-                kk_rect.move_ip(kk_move_assign[key])
-            if not isInScreen(screen, kk_rect):
-                kk_rect.center = pos
+                kk_velo[0] += kk_move_assign[key][0]
+                kk_velo[1] += kk_move_assign[key][1]
+
+        if tuple(kk_velo) in kk_imgs.keys():
+            kk_img = kk_imgs[tuple(kk_velo)]
+        kk_rect.move_ip(kk_velo)
+        if not isInScreen(screen, kk_rect):
+            kk_rect.center = pos
 
         tmr += 1
         screen.blit(bg_img, [0, 0])
