@@ -1,7 +1,10 @@
-import pygame as pg
-import sys
 import random
+import sys
 
+import pygame as pg
+
+def isInScreen(screen: pg.Surface, targetRect:pg.Rect):
+    return (0 <= targetRect.left and targetRect.right <= screen.get_width()) and (0 <= targetRect.top and targetRect.bottom <= screen.get_height())
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -25,9 +28,10 @@ def main():
     bomb_img.set_colorkey((0, 0, 0))
     bomb_rect = bomb_img.get_rect()
     bomb_rect.center = (
-        random.randint(0, 1600),
-        random.randint(0, 900)
+        random.randint(0 + bomb_rect.width / 2, screen.get_width() - bomb_rect.width / 2),
+        random.randint(0 + bomb_rect.height / 2, screen.get_height() - bomb_rect.height / 2)
     )
+    bomb_velocity = [1, 1]
 
     tmr = 0
 
@@ -37,14 +41,21 @@ def main():
                 return 0
         key_lst = pg.key.get_pressed()
         for key in kk_move_assign.keys():
+            pos = kk_rect.center
             if key_lst[key]:
                 kk_rect.move_ip(kk_move_assign[key])
+            if not isInScreen(screen, kk_rect):
+                kk_rect.center = pos
 
         tmr += 1
         screen.blit(bg_img, [0, 0])
         screen.blit(kk_img, kk_rect)
+
+        bomb_rect.move_ip(bomb_velocity)
+        if not isInScreen(screen, bomb_rect):
+            bomb_velocity[0] *= -1
+            bomb_velocity[1] *= -1
         screen.blit(bomb_img, bomb_rect)
-        bomb_rect.move_ip(1, 1)
 
         pg.display.update()
         clock.tick(1000)
