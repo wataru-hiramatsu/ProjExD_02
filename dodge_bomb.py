@@ -57,6 +57,9 @@ def main():
             bomb_velocity[1] *= -1
         screen.blit(bomb_img, bomb_rect)
 
+        if kk_rect.colliderect(bomb_rect):
+            return
+
         pg.display.update()
         clock.tick(1000)
 
