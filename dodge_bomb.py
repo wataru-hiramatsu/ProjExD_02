@@ -3,6 +3,13 @@ import sys
 
 import pygame as pg
 
+def sign(value: int) -> int:
+    if (value < 0):
+        return -1
+    if (value is 0):
+        return 0
+    return 1
+
 
 def check_bound(screen: pg.Surface, obj_rect:pg.Rect):
     """
@@ -53,6 +60,14 @@ def main():
     )
     bomb_velocity = [1, 1]
 
+    bomb_accs = [a for a in range(1, 11)]
+    bomb_imgs = []
+    for r in range(1, 11):
+        img = pg.Surface((20 * r, 20 * r))
+        pg.draw.circle(img, (255, 0, 0), (10 * r, 10 * r), 10 * r)
+        img.set_colorkey((0, 0, 0))
+        bomb_imgs.append(img)
+
     tmr = 0
 
     while True:
@@ -80,11 +95,14 @@ def main():
 
         bomb_rect.move_ip(bomb_velocity)
         bound = check_bound(screen, bomb_rect)
+        bomb_velocity[0] = sign(bomb_velocity[0]) * bomb_accs[min(tmr // 1000, 9)]
+        bomb_velocity[1] = sign(bomb_velocity[1]) * bomb_accs[min(tmr // 1000, 9)]
+
         if (not bound[0]):
             bomb_velocity[0] *= -1
         if not bound[1]:
             bomb_velocity[1] *= -1
-        screen.blit(bomb_img, bomb_rect)
+        screen.blit(bomb_imgs[min(tmr // 1000, 9)], bomb_rect)
 
         if kk_rect.colliderect(bomb_rect):
             return
