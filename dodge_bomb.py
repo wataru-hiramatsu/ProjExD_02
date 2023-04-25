@@ -80,8 +80,9 @@ def main():
 
         bomb_rect.move_ip(bomb_velocity)
         bound = check_bound(screen, bomb_rect)
-        if (not bound[0]) or (not bound[1]):
+        if (not bound[0]):
             bomb_velocity[0] *= -1
+        if not bound[1]:
             bomb_velocity[1] *= -1
         screen.blit(bomb_img, bomb_rect)
 
