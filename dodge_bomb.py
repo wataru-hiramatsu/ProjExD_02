@@ -29,7 +29,7 @@ def change_length(lst: list, after_length: int):
     """
     ベクトルの長さを変更する関数
     引数1: 長さを変更したりベクトル
-    引数2: 変更後の長さ
+    引数2: 変更後の長さ(float)
     """
     l = length((0, 0), tuple(lst))
     rst = [0, 0]
