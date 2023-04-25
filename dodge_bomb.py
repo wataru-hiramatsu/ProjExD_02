@@ -149,8 +149,8 @@ def main():
             ]
             bomb_velocity_normalized = change_length(sabun, 1)
 
-        bomb_velocity[0] = bomb_velocity_normalized[0] * bomb_accs[min(tmr // 1000, 9)]
-        bomb_velocity[1] = bomb_velocity_normalized[1] * bomb_accs[min(tmr // 1000, 9)]
+        bomb_velocity[0] = round(bomb_velocity_normalized[0] * bomb_accs[min(tmr // 1000, 9)])
+        bomb_velocity[1] = round(bomb_velocity_normalized[1] * bomb_accs[min(tmr // 1000, 9)])
 
         # 爆弾移動＆描画
         bomb_rect.move_ip(bomb_velocity)
