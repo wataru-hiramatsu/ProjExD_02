@@ -1,5 +1,6 @@
 import pygame as pg
 import sys
+import random
 
 
 def main():
@@ -13,6 +14,11 @@ def main():
     bomb_img = pg.Surface((20, 20))
     pg.draw.circle(bomb_img, (255, 0, 0), (10, 10), 10)
     bomb_img.set_colorkey((0, 0, 0))
+    bomb_rect = bomb_img.get_rect()
+    bomb_rect.center = (
+        random.randint(0, 1600),
+        random.randint(0, 900)
+    )
 
     tmr = 0
 
