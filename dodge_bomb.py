@@ -9,6 +9,11 @@ def main():
     bg_img = pg.image.load("ex02/fig/pg_bg.jpg")
     kk_img = pg.image.load("ex02/fig/3.png")
     kk_img = pg.transform.rotozoom(kk_img, 0, 2.0)
+    # 爆弾
+    bomb_img = pg.Surface((20, 20))
+    pg.draw.circle(bomb_img, (255, 0, 0), (10, 10), 10)
+    bomb_img.set_colorkey((0, 0, 0))
+
     tmr = 0
 
     while True:
